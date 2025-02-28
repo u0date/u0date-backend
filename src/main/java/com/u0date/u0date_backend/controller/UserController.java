@@ -17,8 +17,8 @@ public class UserController {
     public ResponseEntity<User> createUser() {
         User user = User
                 .builder()
-                .email("baka")
-                .passwordHash("kk")
+                .email("exameple@email.com")
+                .passwordHash("hashedpassword")
                 .build();
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok(savedUser);
