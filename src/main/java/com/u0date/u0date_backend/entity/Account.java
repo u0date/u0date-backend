@@ -8,8 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection="users")
-public class User extends BaseEntity{
+@Document(collection="accounts")
+public class Account extends BaseEntity{
   private String email;
   private String passwordHash;
 }
