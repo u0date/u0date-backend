@@ -11,5 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection="accounts")
 public class Account extends BaseEntity{
   private String email;
-  private String passwordHash;
+  private String username;
+  private String password;
 }
