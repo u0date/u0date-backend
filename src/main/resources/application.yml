@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: u0date
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/
+      database: u0date
