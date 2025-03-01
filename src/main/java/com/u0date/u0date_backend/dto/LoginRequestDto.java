@@ -8,6 +8,6 @@ import lombok.Data;
 @JsonIgnoreProperties
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LoginRequestDto {
-    private String identity;
+    private String email;
     private String password;
 }

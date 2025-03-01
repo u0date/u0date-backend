@@ -19,20 +19,19 @@ public class AccountServiceImpl implements IAccountService {
 
     @Override
     public DefaultApiResponse<AccountDto> register(AccountDto accountDto) {
-        DefaultApiResponse<AccountDto> response = new DefaultApiResponse<>();
+        verifyAccount(accountDto);
 
-        verifyRecord(accountDto);
+        DefaultApiResponse<AccountDto> response = new DefaultApiResponse<>();
         accountDto.setPassword(passwordEncoder.encode(accountDto.getPassword()));
         Account savedAccount  = accountRepository.save(AccountMapper.toEntity(accountDto));
         savedAccount.setPassword(null); // prevent password from returning to user
-
         response.setStatusCode(HttpStatus.CREATED.value());
         response.setStatusMessage("Successfully Created Account");
         response.setData(AccountMapper.toDTO(savedAccount));
         return response;
     }
 
-    private void verifyRecord(AccountDto accountDto){
+    private void verifyAccount(AccountDto accountDto){
         if (accountRepository.existsByEmail(accountDto.getEmail())
                 || accountRepository.existsByUsername(accountDto.getUsername()))
             throw new RuntimeException("Username or Email Address has already been used");
