@@ -5,3 +5,6 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/
       database: u0date
+  security:
+    jwt:
+      secret_key: ${SECRET_KEY:wfhs5poWwHroWSLYl8/eUVIhVUlw/uay4+u1YPJtyT0=}
