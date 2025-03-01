@@ -1,8 +1,9 @@
 package com.u0date.u0date_backend.controller.auth;
 
 import com.u0date.u0date_backend.dto.DefaultApiResponse;
+import com.u0date.u0date_backend.dto.AuthResponseDto;
 import com.u0date.u0date_backend.dto.LoginRequestDto;
-import com.u0date.u0date_backend.dto.LoginResponseDto;
+import com.u0date.u0date_backend.dto.RefreshTokenDto;
 import com.u0date.u0date_backend.service.IAuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,16 @@ public class AuthController {
     private final IAuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public ResponseEntity<DefaultApiResponse<LoginResponseDto>> login(@Valid @RequestBody LoginRequestDto loginRequestDto){
+    public ResponseEntity<DefaultApiResponse<AuthResponseDto>> login(@Valid @RequestBody LoginRequestDto loginRequestDto){
         return ResponseEntity.status(HttpStatus.OK).body(
                 authenticationService.login(loginRequestDto)
+        );
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<DefaultApiResponse<AuthResponseDto>> refreshToken(@Valid @RequestBody RefreshTokenDto refreshTokenDto){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                authenticationService.refreshToken(refreshTokenDto)
         );
     }
 }

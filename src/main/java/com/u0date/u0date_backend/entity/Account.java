@@ -15,4 +15,5 @@ public class Account extends BaseEntity{
   private String email;
   private String username;
   private String password;
+  private String lastRefreshTokenId;
 }
