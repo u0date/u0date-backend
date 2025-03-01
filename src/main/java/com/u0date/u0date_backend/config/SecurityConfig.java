@@ -20,9 +20,12 @@ public class SecurityConfig{
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/v1/auth/**", "/account/**")
+                        .requestMatchers(
+                                "/accounts/register",
+                                "/auth/login")
                         .permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest()
+                        .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }

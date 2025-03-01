@@ -2,7 +2,7 @@ package com.u0date.u0date_backend.controller;
 
 import com.u0date.u0date_backend.dto.AccountDto;
 import com.u0date.u0date_backend.dto.DefaultApiResponse;
-import com.u0date.u0date_backend.service.iAccountService;
+import com.u0date.u0date_backend.service.IAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/accounts", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class AccountController {
-    private final iAccountService accountService;
+    private final IAccountService accountService;
 
     @PostMapping("/register")
     public ResponseEntity<DefaultApiResponse<AccountDto>> register(@RequestBody AccountDto accountDto){

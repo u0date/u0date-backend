@@ -5,17 +5,15 @@ import com.u0date.u0date_backend.dto.DefaultApiResponse;
 import com.u0date.u0date_backend.entity.Account;
 import com.u0date.u0date_backend.mapper.AccountMapper;
 import com.u0date.u0date_backend.repository.AccountRepository;
-import com.u0date.u0date_backend.service.iAccountService;
+import com.u0date.u0date_backend.service.IAccountService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
-public class AccountServiceImpl implements iAccountService {
+public class AccountServiceImpl implements IAccountService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
 
