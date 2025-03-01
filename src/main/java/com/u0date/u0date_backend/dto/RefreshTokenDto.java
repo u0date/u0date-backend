@@ -8,4 +8,3 @@ public class RefreshTokenDto {
     @NotEmpty(message = "refresh token cannot be null or empty")
     private String refreshToken;
 }
-gi
