@@ -3,6 +3,7 @@ package com.u0date.u0date_backend.controller;
 import com.u0date.u0date_backend.dto.AccountDto;
 import com.u0date.u0date_backend.dto.DefaultApiResponse;
 import com.u0date.u0date_backend.service.IAccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,7 +20,7 @@ public class AccountController {
     private final IAccountService accountService;
 
     @PostMapping("/register")
-    public ResponseEntity<DefaultApiResponse<AccountDto>> register(@RequestBody AccountDto accountDto){
+    public ResponseEntity<DefaultApiResponse<AccountDto>> register(@Valid @RequestBody AccountDto accountDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 accountService.register(accountDto));
     }

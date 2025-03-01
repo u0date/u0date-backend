@@ -4,11 +4,13 @@ import com.u0date.u0date_backend.dto.DefaultApiResponse;
 import com.u0date.u0date_backend.dto.LoginRequestDto;
 import com.u0date.u0date_backend.dto.LoginResponseDto;
 import com.u0date.u0date_backend.entity.Account;
+import com.u0date.u0date_backend.exception.ResourceNotFound;
 import com.u0date.u0date_backend.repository.AccountRepository;
 import com.u0date.u0date_backend.service.IAuthenticationService;
 import com.u0date.u0date_backend.service.JWTService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +36,9 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
     private Account verifyAccount(LoginRequestDto loginRequestDto){
         Account account = accountRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(()
-                -> new RuntimeException("Email Not Found!"));
+                -> new ResourceNotFound("Email Not Found!"));
         if(!passwordEncoder.matches(loginRequestDto.getPassword(), account.getPassword()))
-            throw new RuntimeException("Invalid password");
+            throw new BadCredentialsException("Invalid password");
         return account;
     }
 }

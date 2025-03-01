@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+
 import java.io.IOException;
 
 @Component
@@ -22,27 +24,32 @@ import java.io.IOException;
 public class JWTSecurityFilter extends OncePerRequestFilter {
     private final JWTService jwtService;
     private final ApplicationContext applicationContext;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     protected void doFilterInternal(@NonNull  HttpServletRequest request, @NonNull  HttpServletResponse response, @NonNull  FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        String email = null;
-        String jwtToken = null;
+        try{
+            String authHeader = request.getHeader("Authorization");
+            String email = null;
+            String jwtToken = null;
 
-        if(authHeader != null && authHeader.startsWith("Bearer ")){
-            jwtToken = authHeader.substring(7);
-            email = jwtService.extractEmail(jwtToken);
-        }
-
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            UserDetails userDetails = applicationContext.getBean(AccountDetailsService.class).loadUserByUsername(email);
-            if(jwtService.validateToken(jwtToken, userDetails)){
-                UsernamePasswordAuthenticationToken token =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(token);
+            if(authHeader != null && authHeader.startsWith("Bearer ")){
+                jwtToken = authHeader.substring(7);
+                email = jwtService.extractEmail(jwtToken);
             }
+
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null){
+                UserDetails userDetails = applicationContext.getBean(AccountDetailsService.class).loadUserByUsername(email);
+                if(jwtService.validateToken(jwtToken, userDetails)){
+                    UsernamePasswordAuthenticationToken token =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(token);
+                }
+            }
+            filterChain.doFilter(request, response);
+        } catch (Exception exception){
+            handlerExceptionResolver.resolveException(request, response, null, exception);
         }
-        filterChain.doFilter(request, response);
     }
 }

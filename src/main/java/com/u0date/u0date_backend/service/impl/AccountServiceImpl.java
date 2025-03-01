@@ -8,6 +8,7 @@ import com.u0date.u0date_backend.repository.AccountRepository;
 import com.u0date.u0date_backend.service.IAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,6 @@ public class AccountServiceImpl implements IAccountService {
     private void verifyAccount(AccountDto accountDto){
         if (accountRepository.existsByEmail(accountDto.getEmail())
                 || accountRepository.existsByUsername(accountDto.getUsername()))
-            throw new RuntimeException("Username or Email Address has already been used");
+            throw new BadCredentialsException("Username or Email Address has already been used");
     }
 }
