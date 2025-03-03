@@ -2,7 +2,9 @@ package com.u0date.u0date_backend.mapper;
 
 import com.u0date.u0date_backend.dto.AccountDto;
 import com.u0date.u0date_backend.entity.Account;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AccountMapper {
     public static AccountDto toDTO(Account account){
         if (account == null) return null;

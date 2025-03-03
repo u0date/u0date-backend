@@ -28,6 +28,10 @@ public class AccountPrincipal implements UserDetails {
         return account.getEmail();
     }
 
+    public String getId(){
+        return account.getId();
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
