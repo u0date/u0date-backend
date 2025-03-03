@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document(collection="notes")
 public class Note extends BaseEntity{
-  private String userId;
+  private String accountId;
   private String title;
   private String content;
   private String lastEditedBy;
