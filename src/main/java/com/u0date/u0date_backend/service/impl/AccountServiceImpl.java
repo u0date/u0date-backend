@@ -17,19 +17,15 @@ import org.springframework.stereotype.Service;
 public class AccountServiceImpl implements IAccountService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AccountMapper accountMapper;
 
     @Override
     public DefaultApiResponse<AccountDto> register(AccountDto accountDto) {
         verifyAccount(accountDto);
-
-        DefaultApiResponse<AccountDto> response = new DefaultApiResponse<>();
         accountDto.setPassword(passwordEncoder.encode(accountDto.getPassword()));
-        Account savedAccount  = accountRepository.save(AccountMapper.toEntity(accountDto));
+        Account savedAccount  = accountRepository.save(accountMapper.toEntity(accountDto));
         savedAccount.setPassword(null); // prevent password from returning to user
-        response.setStatusCode(HttpStatus.CREATED.value());
-        response.setStatusMessage("Successfully Created Account");
-        response.setData(AccountMapper.toDTO(savedAccount));
-        return response;
+        return new DefaultApiResponse<>(HttpStatus.CREATED.value(), "Successfully Created Account", accountMapper.toDTO(savedAccount));
     }
 
     private void verifyAccount(AccountDto accountDto){

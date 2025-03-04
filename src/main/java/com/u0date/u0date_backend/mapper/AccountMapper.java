@@ -2,9 +2,11 @@ package com.u0date.u0date_backend.mapper;
 
 import com.u0date.u0date_backend.dto.AccountDto;
 import com.u0date.u0date_backend.entity.Account;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AccountMapper {
-    public static AccountDto toDTO(Account account){
+    public AccountDto toDTO(Account account){
         if (account == null) return null;
         return AccountDto.builder()
                 .username(account.getUsername())
@@ -13,7 +15,7 @@ public class AccountMapper {
                 .build();
     }
 
-    public static Account toEntity(AccountDto accountDto){
+    public Account toEntity(AccountDto accountDto){
         if (accountDto == null) return null;
         return Account.builder()
                 .username(accountDto.getUsername())

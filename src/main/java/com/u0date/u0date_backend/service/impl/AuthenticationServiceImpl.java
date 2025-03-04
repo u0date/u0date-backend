@@ -30,28 +30,19 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
     @Override
     public DefaultApiResponse<AuthResponseDto> login(@Valid LoginRequestDto loginRequestDto) {
-        DefaultApiResponse<AuthResponseDto> response = new DefaultApiResponse<>();
         AuthResponseDto authResponseDto = new AuthResponseDto();
-
         String tokenId = UUID.randomUUID().toString();
         Account account = verifyAccount(loginRequestDto);
-
         authResponseDto.setAccessToken(jwtService.generateToken(account.getEmail(), tokenId));
         authResponseDto.setRefreshToken(jwtService.generateRefreshToken(account.getEmail(), tokenId));
         account.setLastRefreshTokenId(tokenId);
         accountRepository.save(account);
-
-        response.setStatusCode(HttpStatus.OK.value());
-        response.setStatusMessage("Login Successful");
-        response.setData(authResponseDto);
-        return response;
+        return new DefaultApiResponse<>(HttpStatus.OK.value(), "Login Successful", authResponseDto);
     }
 
     @Override
     public DefaultApiResponse<AuthResponseDto> refreshToken(RefreshTokenDto refreshTokenDto) {
-        DefaultApiResponse<AuthResponseDto> response = new DefaultApiResponse<>();
         AuthResponseDto authResponseDto = new AuthResponseDto();
-
         String email = jwtService.extractEmail(refreshTokenDto.getRefreshToken());
         if (email == null)
             throw new JwtException("An error occurred refreshing access token");
@@ -70,10 +61,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         account.setLastRefreshTokenId(newTokenId);
         accountRepository.save(account);
 
-        response.setStatusCode(HttpStatus.OK.value());
-        response.setStatusMessage("Token refreshed");
-        response.setData(authResponseDto);
-        return response;
+        return new DefaultApiResponse<>(HttpStatus.OK.value(), "Token refreshed", authResponseDto);
     }
 
     private Account verifyAccount(LoginRequestDto loginRequestDto){
