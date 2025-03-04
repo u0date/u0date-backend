@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NoteMapper {
-    public static NoteDto toDto(Note note) {
+    public NoteDto toDto(Note note) {
         if (note == null) return null;
         return NoteDto.builder()
                 .id(note.getId())
@@ -24,7 +24,7 @@ public class NoteMapper {
                 .accountId(accountId) // Associate with the authenticated user
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .lastEditedBy(dto.getLastEditedBy())
+                .lastEditedBy(accountId)
                 .isSynced(dto.getIsSynced())
                 .build();
     }
