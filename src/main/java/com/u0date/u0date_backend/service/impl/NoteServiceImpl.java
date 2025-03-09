@@ -50,7 +50,12 @@ public class NoteServiceImpl implements INoteService {
         Note existingNote = noteRepository.findById(noteId)
                 .orElseThrow(() -> new ResourceNotFound("Note not found"));
 
-        existingNote.setTitle(noteDto.getTitle());
+        if (existingNote.getUpdatedAt().isAfter(noteDto.getUpdatedAt()))
+            return null;
+
+        if (noteDto.getTitle() != null && !noteDto.getTitle().isEmpty())
+            existingNote.setTitle(noteDto.getTitle());
+
         existingNote.setContent(noteDto.getContent());
         existingNote.setLastEditedBy(accountId);
         existingNote.setIsSynced(false);
