@@ -4,6 +4,9 @@ import lombok.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Builder
 @Getter
 @Setter
@@ -15,5 +18,18 @@ public class Account extends BaseEntity{
   private String email;
   private String username;
   private String password;
-  private String lastRefreshTokenId;
+  @Builder.Default
+  private Map<String, String> lastRefreshTokenMap = new HashMap<>();
+
+  public void updateRefreshToken(String deviceId, String tokenId) {
+    lastRefreshTokenMap.put(deviceId, tokenId);
+  }
+
+  public boolean isValidRefreshToken(String deviceId, String tokenId) {
+    return lastRefreshTokenMap.containsKey(deviceId) && lastRefreshTokenMap.get(deviceId).equals(tokenId);
+  }
+
+  public void removeRefreshToken(String deviceId) {
+    lastRefreshTokenMap.remove(deviceId);
+  }
 }

@@ -27,8 +27,12 @@ public class JWTSecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull  HttpServletRequest request, @NonNull  HttpServletResponse response, @NonNull  FilterChain filterChain){
         try{
             String authHeader = request.getHeader("Authorization");
+            String deviceId = request.getParameter("deviceId");
             String email = null;
             String jwtToken = null;
+
+            if(deviceId.isEmpty())
+                throw new RuntimeException("Device ID missing");
 
             if(authHeader != null && authHeader.startsWith("Bearer ")){
                 jwtToken = authHeader.substring(7);
@@ -37,7 +41,7 @@ public class JWTSecurityFilter extends OncePerRequestFilter {
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null){
                 UserDetails userDetails = applicationContext.getBean(AccountDetailsService.class).loadUserByUsername(email);
-                if(jwtService.validateToken(jwtToken, userDetails)){
+                if(jwtService.validateToken(jwtToken, userDetails, deviceId)){
                     UsernamePasswordAuthenticationToken token =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

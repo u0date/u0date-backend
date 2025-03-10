@@ -7,6 +7,6 @@ import com.u0date.u0date_backend.dto.RefreshTokenDto;
 import jakarta.validation.Valid;
 
 public interface IAuthenticationService {
-    DefaultApiResponse<AuthResponseDto> login(@Valid LoginRequestDto authRequestDto);
-    DefaultApiResponse<AuthResponseDto> refreshToken(@Valid RefreshTokenDto refreshTokenDto);
+    DefaultApiResponse<AuthResponseDto> login(@Valid LoginRequestDto authRequestDto, String deviceId);
+    DefaultApiResponse<AuthResponseDto> refreshToken(@Valid RefreshTokenDto refreshTokenDto, String deviceId);
 }

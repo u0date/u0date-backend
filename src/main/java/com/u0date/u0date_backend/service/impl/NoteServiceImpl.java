@@ -47,10 +47,15 @@ public class NoteServiceImpl implements INoteService {
 
     @Override
     public DefaultApiResponse<NoteDto> updateNote(NoteDto noteDto, String noteId, String accountId) {
-        Note existingNote = noteRepository.findById(noteId)
+        Note existingNote = noteRepository.findByIdAndAccountIdAndDeletedAtIsNull(noteId, accountId)
                 .orElseThrow(() -> new ResourceNotFound("Note not found"));
 
-        existingNote.setTitle(noteDto.getTitle());
+        if (existingNote.getUpdatedAt().isAfter(noteDto.getUpdatedAt()))
+            return null;
+
+        if (noteDto.getTitle() != null && !noteDto.getTitle().isEmpty())
+            existingNote.setTitle(noteDto.getTitle());
+
         existingNote.setContent(noteDto.getContent());
         existingNote.setLastEditedBy(accountId);
         existingNote.setIsSynced(false);
@@ -60,7 +65,7 @@ public class NoteServiceImpl implements INoteService {
 
     @Override
     public DefaultApiResponse<NoteDto> deleteNote(String noteId, String accountId) {
-        Note note = noteRepository.findById(noteId)
+        Note note = noteRepository.findByIdAndAccountIdAndDeletedAtIsNull(noteId, accountId)
                 .orElseThrow(() -> new ResourceNotFound("Note not found"));
         note.setDeletedAt(LocalDateTime.now());
         noteRepository.save(note);
