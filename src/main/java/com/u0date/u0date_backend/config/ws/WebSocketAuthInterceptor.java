@@ -4,6 +4,7 @@ import com.u0date.u0date_backend.entity.AccountPrincipal;
 import com.u0date.u0date_backend.service.AccountDetailsService;
 import com.u0date.u0date_backend.service.JWTService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class WebSocketAuthInterceptor implements HandshakeInterceptor {
     private final AccountDetailsService accountDetailsService;
     private final JWTService jwtService;
@@ -26,10 +28,15 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
 
             if (query != null && query.contains("token=")) {
                 String jwtToken = query.split("token=")[1].split("&")[0];
+                String deviceId = query.contains("deviceId=") ? query.split("deviceId=")[1].split("&")[0] : null;
+
+                if(deviceId == null)
+                    throw new RuntimeException("Device ID missing");
+
                 String email = jwtService.extractEmail(jwtToken);
                 if (email != null) {
                     AccountPrincipal accountPrincipal = (AccountPrincipal) accountDetailsService.loadUserByUsername(email);;
-                    if (jwtService.validateToken(jwtToken, accountPrincipal))
+                    if (jwtService.validateToken(jwtToken, accountPrincipal, deviceId))
                         attributes.put("principal", accountPrincipal);
                 }
             }

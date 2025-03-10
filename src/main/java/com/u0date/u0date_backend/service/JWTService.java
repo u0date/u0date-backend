@@ -57,19 +57,17 @@ public class JWTService {
         return extractClaims(jwtToken, claims -> claims.get("tokenId", String.class));
     }
 
-    public boolean validateToken(String jwtToken, UserDetails userDetails) {
+    public boolean validateToken(String jwtToken, UserDetails userDetails, String deviceId) {
         final String email = extractEmail(jwtToken);
-        final String tokenId = extractTokenId(jwtToken); // Extract token ID
+        final String tokenId = extractTokenId(jwtToken);
 
         Account account = accountRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFound("Account not found"));
 
-        // Ensure token is not expired and matches the latest issued token ID
         return email.equals(userDetails.getUsername())
                 && !isTokenExpired(jwtToken)
-                && tokenId.equals(account.getLastRefreshTokenId());
+                && account.isValidRefreshToken(deviceId, tokenId);
     }
-
 
     public boolean isRefreshTokenValid(String token, UserDetails userDetails) {
         String subject = extractClaims(token, Claims::getSubject);

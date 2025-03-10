@@ -29,19 +29,20 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private final AccountDetailsService accountDetailsService;
 
     @Override
-    public DefaultApiResponse<AuthResponseDto> login(@Valid LoginRequestDto loginRequestDto) {
+    public DefaultApiResponse<AuthResponseDto> login(@Valid LoginRequestDto loginRequestDto, String deviceId) {
         AuthResponseDto authResponseDto = new AuthResponseDto();
         String tokenId = UUID.randomUUID().toString();
         Account account = verifyAccount(loginRequestDto);
         authResponseDto.setAccessToken(jwtService.generateToken(account.getEmail(), tokenId));
         authResponseDto.setRefreshToken(jwtService.generateRefreshToken(account.getEmail(), tokenId));
-        account.setLastRefreshTokenId(tokenId);
+
+        account.updateRefreshToken(deviceId, tokenId);
         accountRepository.save(account);
         return new DefaultApiResponse<>(HttpStatus.OK.value(), "Login Successful", authResponseDto);
     }
 
     @Override
-    public DefaultApiResponse<AuthResponseDto> refreshToken(RefreshTokenDto refreshTokenDto) {
+    public DefaultApiResponse<AuthResponseDto> refreshToken(RefreshTokenDto refreshTokenDto, String deviceId) {
         AuthResponseDto authResponseDto = new AuthResponseDto();
         String email = jwtService.extractEmail(refreshTokenDto.getRefreshToken());
         if (email == null)
@@ -52,13 +53,15 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         Account account = accountRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFound("Invalid Email"));
         String tokenId = jwtService.extractTokenId(refreshTokenDto.getRefreshToken());
 
-        if (!tokenId.equals(account.getLastRefreshTokenId()))
-            throw new ResourceNotFound("Account not found for refresh token");
+        if (!account.isValidRefreshToken(deviceId, tokenId)) {
+            throw new ResourceNotFound("Invalid refresh token for this device");
+        }
 
         String newTokenId = UUID.randomUUID().toString();
         authResponseDto.setAccessToken(jwtService.generateToken(email, newTokenId));
         authResponseDto.setRefreshToken(jwtService.generateRefreshToken(email, newTokenId));
-        account.setLastRefreshTokenId(newTokenId);
+
+        account.updateRefreshToken(deviceId, newTokenId);
         accountRepository.save(account);
 
         return new DefaultApiResponse<>(HttpStatus.OK.value(), "Token refreshed", authResponseDto);
