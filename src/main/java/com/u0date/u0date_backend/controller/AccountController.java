@@ -2,16 +2,15 @@ package com.u0date.u0date_backend.controller;
 
 import com.u0date.u0date_backend.dto.AccountDto;
 import com.u0date.u0date_backend.dto.DefaultApiResponse;
+import com.u0date.u0date_backend.entity.AccountPrincipal;
 import com.u0date.u0date_backend.service.IAccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/accounts", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -23,5 +22,10 @@ public class AccountController {
     public ResponseEntity<DefaultApiResponse<AccountDto>> register(@Valid @RequestBody AccountDto accountDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 accountService.register(accountDto));
+    }
+
+    @GetMapping()
+    public ResponseEntity<String> getAccountId(@AuthenticationPrincipal AccountPrincipal accountPrincipal){
+        return ResponseEntity.status(HttpStatus.OK).body(accountPrincipal.getId());
     }
 }
