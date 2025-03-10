@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping(value = "/accounts", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
@@ -25,9 +27,9 @@ public class AccountController {
     }
 
     @GetMapping("/accountId")
-    public ResponseEntity<DefaultApiResponse<String>> getAccountId(@AuthenticationPrincipal AccountPrincipal accountPrincipal){
+    public ResponseEntity<DefaultApiResponse<Map<String, String>>> getAccountId(@AuthenticationPrincipal AccountPrincipal accountPrincipal){
         return ResponseEntity.status(HttpStatus.OK).body(
-                new DefaultApiResponse<>(HttpStatus.OK.value(), "accountId", accountPrincipal.getId())
+                new DefaultApiResponse<>(HttpStatus.OK.value(), "accountId", Map.of("accountId",accountPrincipal.getId()))
         );
     }
 }
