@@ -30,10 +30,7 @@ public class SecurityConfig{
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(
-                                "/accounts/register",
-                                "/auth/**",
-                                "/ws/**")
+                        .requestMatchers("/accounts/register", "/auth/**", "/ws/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
@@ -50,22 +47,8 @@ public class SecurityConfig{
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(
-                List.of(
-                        "http://localhost:5173",
-                        "http://localhost:5500",
-                        "http://127.0.0.1:5500"));
-
-        corsConfiguration.setAllowedMethods(
-                List.of(
-                        "HEAD",
-                        "GET",
-                        "POST",
-                        "PUT",
-                        "DELETE",
-                        "PATCH",
-                        "OPTION")
-        );
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5500", "http://127.0.0.1:5500"));
+        corsConfiguration.setAllowedMethods(List.of("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTION"));
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowCredentials(true);
 
