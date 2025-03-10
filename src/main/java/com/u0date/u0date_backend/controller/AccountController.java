@@ -24,8 +24,10 @@ public class AccountController {
                 accountService.register(accountDto));
     }
 
-    @GetMapping()
-    public ResponseEntity<String> getAccountId(@AuthenticationPrincipal AccountPrincipal accountPrincipal){
-        return ResponseEntity.status(HttpStatus.OK).body(accountPrincipal.getId());
+    @GetMapping("/accountId")
+    public ResponseEntity<DefaultApiResponse<String>> getAccountId(@AuthenticationPrincipal AccountPrincipal accountPrincipal){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new DefaultApiResponse<>(HttpStatus.OK.value(), "accountId", accountPrincipal.getId())
+        );
     }
 }

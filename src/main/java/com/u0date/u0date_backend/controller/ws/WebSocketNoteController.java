@@ -31,7 +31,7 @@ public class WebSocketNoteController {
                 log.warn("No principal found in session attributes");
             }
         } catch (Exception e) {
-            throw new RuntimeException("===> " + e.getMessage());
+            log.error("WebSocket Note Updated Error:\nMessage: {}\nAccountID: {}\nNoteID: {}", e.getMessage(), (AccountPrincipal) sessionAttributes.get("principal"), noteDto.getId());
         }
     }
 }

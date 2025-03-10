@@ -18,6 +18,7 @@ public class Account extends BaseEntity{
   private String email;
   private String username;
   private String password;
+  @Builder.Default
   private Map<String, String> lastRefreshTokenMap = new HashMap<>();
 
   public void updateRefreshToken(String deviceId, String tokenId) {
