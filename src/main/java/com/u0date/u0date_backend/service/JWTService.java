@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -18,9 +19,17 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JWTService {
     @Value("${spring.security.jwt.secret_key}")
     private String SECRET_KEY;
+
+    @Value("${spring.security.jwt.token_expiration}")
+    private int tokenExpiration;
+
+    @Value("${spring.security.jwt.refresh_token_expiration}")
+    private int refreshTokenExpiration;
+
     private final AccountRepository accountRepository;
 
     public String generateToken(String email, String tokenId) {
@@ -31,7 +40,7 @@ public class JWTService {
                 .claims(claims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000))  // 15 minutes
+                .expiration(new Date(System.currentTimeMillis() + tokenExpiration))
                 .signWith(getKey())
                 .compact();
     }
@@ -44,7 +53,7 @@ public class JWTService {
                 .claims(claims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000))  // 7 days
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(getKey())
                 .compact();
     }
@@ -62,7 +71,7 @@ public class JWTService {
         final String tokenId = extractTokenId(jwtToken);
 
         Account account = accountRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFound("Account not found"));
+                .orElseThrow(() -> new ResourceNotFound("Account not found for email: " + email));
 
         return email.equals(userDetails.getUsername())
                 && !isTokenExpired(jwtToken)

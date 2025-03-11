@@ -13,6 +13,7 @@ import com.u0date.u0date_backend.service.JWTService;
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationServiceImpl implements IAuthenticationService {
     private final JWTService jwtService;
     private final AccountRepository accountRepository;
@@ -45,15 +47,27 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     public DefaultApiResponse<AuthResponseDto> refreshToken(RefreshTokenDto refreshTokenDto, String deviceId) {
         AuthResponseDto authResponseDto = new AuthResponseDto();
         String email = jwtService.extractEmail(refreshTokenDto.getRefreshToken());
-        if (email == null)
-            throw new JwtException("An error occurred refreshing access token");
-        if (!jwtService.isRefreshTokenValid(refreshTokenDto.getRefreshToken(), accountDetailsService.loadUserByUsername(email)))
-            throw new JwtException("Invalid refresh token");
 
-        Account account = accountRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFound("Invalid Email"));
+        if (email == null) {
+            log.warn("[Authentication] Failed token refresh attempt - Email extraction failed");
+            throw new JwtException("An error occurred refreshing access token");
+        }
+
+        if (!jwtService.isRefreshTokenValid(refreshTokenDto.getRefreshToken(), accountDetailsService.loadUserByUsername(email))) {
+            log.warn("[Authentication] Failed token refresh attempt - Invalid refresh token for email: {}", email);
+            throw new JwtException("Invalid refresh token");
+        }
+
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("[Authentication] Failed token refresh attempt - Account not found for email: {}", email);
+                    return new ResourceNotFound("Invalid Email");
+                });
+
         String tokenId = jwtService.extractTokenId(refreshTokenDto.getRefreshToken());
 
         if (!account.isValidRefreshToken(deviceId, tokenId)) {
+            log.warn("[Authentication] Failed token refresh attempt - Invalid refresh token for device: {}", deviceId);
             throw new ResourceNotFound("Invalid refresh token for this device");
         }
 
@@ -64,14 +78,17 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         account.updateRefreshToken(deviceId, newTokenId);
         accountRepository.save(account);
 
+        log.info("[Authentication] Token refreshed successfully for email: {}", email);
         return new DefaultApiResponse<>(HttpStatus.OK.value(), "Token refreshed", authResponseDto);
     }
 
     private Account verifyAccount(LoginRequestDto loginRequestDto){
-        Account account = accountRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(()
-                -> new ResourceNotFound("Email not found!"));
-        if (!passwordEncoder.matches(loginRequestDto.getPassword(), account.getPassword()))
+        Account account = accountRepository.findByEmail(loginRequestDto.getEmail())
+                .orElseThrow(() -> new ResourceNotFound("[Authentication] Account not found for email: " + loginRequestDto.getEmail()));
+        if (!passwordEncoder.matches(loginRequestDto.getPassword(), account.getPassword())){
+            log.warn("[Authentication] Failed login attempt for email: {}", loginRequestDto.getEmail());
             throw new BadCredentialsException("Invalid email or password");
+        }
         return account;
     }
 }

@@ -31,8 +31,10 @@ public class JWTSecurityFilter extends OncePerRequestFilter {
             String email = null;
             String jwtToken = null;
 
-            if(deviceId.isEmpty())
-                throw new RuntimeException("Device ID missing");
+            if (deviceId.isEmpty()) {
+                log.warn("[Device Validation] Device ID is missing in the request");
+                throw new RuntimeException("Device ID is required but missing");
+            }
 
             if(authHeader != null && authHeader.startsWith("Bearer ")){
                 jwtToken = authHeader.substring(7);
