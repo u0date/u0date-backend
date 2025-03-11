@@ -28,27 +28,33 @@ public class NoteServiceImpl implements INoteService {
         List<NoteDto> noteDtoList = notes.stream()
                 .map(noteMapper::toDto)
                 .toList();
-        return new DefaultApiResponse<>(HttpStatus.OK.value(), "All notes", noteDtoList);
+        return new DefaultApiResponse<>(HttpStatus.OK.value(), "Retrieved all notes", noteDtoList);
     }
 
     @Override
     public DefaultApiResponse<NoteDto> getNote(String noteId, String accountId) {
         Note note = noteRepository.findByIdAndAccountIdAndDeletedAtIsNull(noteId, accountId)
-                .orElseThrow(() -> new ResourceNotFound("Note not found"));
-        return new DefaultApiResponse<>(HttpStatus.OK.value(), "Note", noteMapper.toDto(note));
+                .orElseThrow(() -> {
+                    log.warn("[Note Retrieval] Note not found - noteId: {}, accountId: {}", noteId, accountId);
+                    return new ResourceNotFound("Note not found for the given account");
+                });
+        return new DefaultApiResponse<>(HttpStatus.OK.value(), "Retrieved note", noteMapper.toDto(note));
     }
 
     @Override
     public DefaultApiResponse<NoteDto> createNote(NoteDto noteDto, String accountId) {
         Note note = noteMapper.toEntity(noteDto, accountId);
         Note savedNote = noteRepository.save(note);
-        return new DefaultApiResponse<>(HttpStatus.CREATED.value(), "Created new note", noteMapper.toDto(savedNote));
+        return new DefaultApiResponse<>(HttpStatus.CREATED.value(), "Note created successfully", noteMapper.toDto(savedNote));
     }
 
     @Override
     public DefaultApiResponse<NoteDto> updateNote(NoteDto noteDto, String noteId, String accountId) {
         Note existingNote = noteRepository.findByIdAndAccountIdAndDeletedAtIsNull(noteId, accountId)
-                .orElseThrow(() -> new ResourceNotFound("Note not found"));
+                .orElseThrow(() -> {
+                    log.warn("[Note Retrieval] Note not found - noteId: {}, accountId: {}", noteId, accountId);
+                    return new ResourceNotFound("Note not found for the given account");
+                });
 
         if (existingNote.getUpdatedAt().isAfter(noteDto.getUpdatedAt()))
             return null;
@@ -60,15 +66,19 @@ public class NoteServiceImpl implements INoteService {
         existingNote.setLastEditedBy(accountId);
         existingNote.setIsSynced(false);
         Note updateNote = noteRepository.save(existingNote);
-        return new DefaultApiResponse<>(HttpStatus.OK.value(), "Note updated", noteMapper.toDto(updateNote));
+        return new DefaultApiResponse<>(HttpStatus.OK.value(), "Note updated successfully", noteMapper.toDto(updateNote));
     }
 
     @Override
     public DefaultApiResponse<NoteDto> deleteNote(String noteId, String accountId) {
         Note note = noteRepository.findByIdAndAccountIdAndDeletedAtIsNull(noteId, accountId)
-                .orElseThrow(() -> new ResourceNotFound("Note not found"));
+                .orElseThrow(() -> {
+                    log.warn("[Note Retrieval] Note not found - noteId: {}, accountId: {}", noteId, accountId);
+                    return new ResourceNotFound("Note not found for the given account");
+                });
+
         note.setDeletedAt(LocalDateTime.now());
         noteRepository.save(note);
-        return new DefaultApiResponse<>(HttpStatus.OK.value(), "Note deleted", null);
+        return new DefaultApiResponse<>(HttpStatus.OK.value(), "Note deleted successfully", null);
     }
 }
